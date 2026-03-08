@@ -5,6 +5,7 @@ import { ChevronLeft, AlertTriangle, Loader2, CheckCircle2, ExternalLink } from 
 import StatusChip from '../components/ui/StatusChip'
 import SubmissionCard from '../components/ui/SubmissionCard'
 import ShinyButton from '../components/ui/ShinyButton'
+import OnChainProof from '../components/ui/OnChainProof'
 
 const API = '/api'
 
@@ -70,10 +71,9 @@ export default function ReviewPage({ wallet }) {
           <span className="font-mono text-xs">{selected?.solver}</span>
         </p>
         {success.txHash && (
-          <details className="mb-6">
-            <summary className="text-xs text-text-faint cursor-pointer">View transaction hash</summary>
-            <p className="text-xs font-mono text-text-muted mt-2 break-all">{success.txHash}</p>
-          </details>
+          <div className="mb-6 text-left">
+            <OnChainProof challenge={{ ...challenge, payoutTxHash: success.txHash }} />
+          </div>
         )}
         <Link
           to="/challenges"

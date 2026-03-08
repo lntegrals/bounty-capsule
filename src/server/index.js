@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import http from 'http';
 import { createEscrow, finishEscrow, cancelEscrow, getEscrows, getBalance, createTestWallet, getWalletFromSeed } from '../lib/xrpl.js';
 import { uploadJSON, uploadBuffer, getGatewayUrl, testPinataAuth } from '../lib/pinata.js';
@@ -154,9 +155,14 @@ async function handleRequest(req, res) {
         deadline: deadline || '',
       };
 
-      // Upload metadata to IPFS
-      const ipfsResult = await uploadJSON(challengeData, { type: 'challenge' });
-      challengeData.cid = ipfsResult.cid;
+      // Upload metadata to IPFS (non-fatal if Pinata is not configured)
+      let ipfsResult = { cid: null, gatewayUrl: null };
+      try {
+        ipfsResult = await uploadJSON(challengeData, { type: 'challenge' });
+        challengeData.cid = ipfsResult.cid;
+      } catch (e) {
+        console.warn('[Server] IPFS upload skipped for challenge:', e.message);
+      }
 
       // Lock bounty in escrow
       const escrowResult = await createEscrow({
@@ -211,11 +217,17 @@ async function handleRequest(req, res) {
         status: 'submitted',
       };
 
-      const ipfsResult = await uploadJSON(submissionData, {
-        type: 'submission',
-        challengeId,
-        solver: submissionData.solver,
-      });
+      // Upload submission to IPFS (non-fatal if Pinata is not configured)
+      let ipfsResult = { cid: null, gatewayUrl: null };
+      try {
+        ipfsResult = await uploadJSON(submissionData, {
+          type: 'submission',
+          challengeId,
+          solver: submissionData.solver,
+        });
+      } catch (e) {
+        console.warn('[Server] IPFS upload skipped for submission:', e.message);
+      }
       submissionData.cid = ipfsResult.cid;
       submissionData.id = `submission_${Date.now()}`;
 

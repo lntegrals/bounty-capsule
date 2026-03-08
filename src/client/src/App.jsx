@@ -7,6 +7,7 @@ import CreateChallenge from './pages/CreateChallenge'
 import ChallengeDetail from './pages/ChallengeDetail'
 import ReviewPage from './pages/ReviewPage'
 import SubmitSolution from './pages/SubmitSolution'
+import DemoTour from './components/DemoTour'
 
 const API = '/api'
 
@@ -14,6 +15,7 @@ export default function App() {
   const [wallet, setWallet] = useState(null)
   const [challenges, setChallenges] = useState([])
   const [walletModalOpen, setWalletModalOpen] = useState(false)
+  const [tourActive, setTourActive] = useState(false)
 
   useEffect(() => {
     const savedSeed = localStorage.getItem('bounty_seed')
@@ -62,9 +64,10 @@ export default function App() {
         walletModalOpen={walletModalOpen}
         onOpenWalletModal={() => setWalletModalOpen(true)}
         onCloseWalletModal={() => setWalletModalOpen(false)}
+        onStartTour={() => setTourActive(true)}
       >
         <Routes>
-          <Route path="/" element={<Landing challenges={challenges} />} />
+          <Route path="/" element={<Landing challenges={challenges} onStartTour={() => setTourActive(true)} />} />
           <Route path="/challenges" element={<ChallengeIndex challenges={challenges} onRefresh={fetchChallenges} wallet={wallet} />} />
           <Route path="/challenges/new" element={<CreateChallenge wallet={wallet} onSuccess={fetchChallenges} onConnectWallet={() => setWalletModalOpen(true)} />} />
           <Route path="/challenges/:id" element={<ChallengeDetail wallet={wallet} />} />
@@ -72,6 +75,13 @@ export default function App() {
           <Route path="/challenges/:id/submit" element={<SubmitSolution wallet={wallet} />} />
         </Routes>
       </AppShell>
+
+      {tourActive && (
+        <DemoTour
+          onOpenWalletModal={() => setWalletModalOpen(true)}
+          onClose={() => setTourActive(false)}
+        />
+      )}
     </BrowserRouter>
   )
 }

@@ -1,9 +1,9 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Wallet, ChevronDown } from 'lucide-react'
+import { Wallet, ChevronDown, Zap } from 'lucide-react'
 import WalletModal from './ui/WalletModal'
 import { ToastProvider } from './ui/Toast'
 
-export default function AppShell({ children, wallet, onCreateWallet, onLoadWallet, walletModalOpen, onOpenWalletModal, onCloseWalletModal }) {
+export default function AppShell({ children, wallet, onCreateWallet, onLoadWallet, walletModalOpen, onOpenWalletModal, onCloseWalletModal, onStartTour }) {
   const location = useLocation()
 
   const isActive = (path) => location.pathname === path || (path !== '/' && location.pathname.startsWith(path))
@@ -23,15 +23,16 @@ export default function AppShell({ children, wallet, onCreateWallet, onLoadWalle
             </Link>
 
             {/* Nav links + wallet */}
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4">
               <nav className="hidden sm:flex items-center gap-1">
                 {[
-                  { to: '/challenges', label: 'Browse' },
-                  { to: '/challenges/new', label: 'Create' },
-                ].map(({ to, label }) => (
+                  { to: '/challenges', label: 'Browse', tourId: 'browse-link' },
+                  { to: '/challenges/new', label: 'Create', tourId: 'create-link' },
+                ].map(({ to, label, tourId }) => (
                   <Link
                     key={to}
                     to={to}
+                    data-tour={tourId}
                     className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                       isActive(to)
                         ? 'text-text-primary bg-surface'
@@ -43,8 +44,18 @@ export default function AppShell({ children, wallet, onCreateWallet, onLoadWalle
                 ))}
               </nav>
 
+              {/* Demo Tour trigger */}
+              <button
+                onClick={onStartTour}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-cyber-purple/30 bg-cyber-purple/5 text-cyber-purple text-xs font-semibold hover:bg-cyber-purple/10 transition-colors"
+              >
+                <Zap size={12} />
+                Tour
+              </button>
+
               {wallet ? (
                 <button
+                  data-tour="wallet-btn"
                   onClick={onOpenWalletModal}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-cyber-cyan/5 border border-cyber-cyan/20 text-cyber-cyan text-xs font-mono hover:bg-cyber-cyan/10 transition-colors"
                 >
@@ -54,6 +65,7 @@ export default function AppShell({ children, wallet, onCreateWallet, onLoadWalle
                 </button>
               ) : (
                 <button
+                  data-tour="wallet-btn"
                   onClick={onOpenWalletModal}
                   className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyber-cyan/10 border border-cyber-cyan/30 text-cyber-cyan text-sm font-semibold hover:bg-cyber-cyan/20 transition-colors"
                 >

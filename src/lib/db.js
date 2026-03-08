@@ -78,7 +78,13 @@ function rowToSubmission(row) {
 }
 
 export function getChallenges() {
-  return db.prepare('SELECT * FROM challenges ORDER BY created_at DESC').all().map(rowToChallenge);
+  return db.prepare(`
+    SELECT c.*, COUNT(s.id) AS submission_count
+    FROM challenges c
+    LEFT JOIN submissions s ON s.challenge_id = c.id
+    GROUP BY c.id
+    ORDER BY c.created_at DESC
+  `).all().map((row) => ({ ...rowToChallenge(row), submissionCount: row.submission_count || 0 }));
 }
 
 export function getChallenge(id) {

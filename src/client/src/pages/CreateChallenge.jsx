@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Upload, Lock, Shield, AlertTriangle, Loader2, X } from 'lucide-react'
@@ -36,6 +36,17 @@ export default function CreateChallenge({ wallet, onSuccess, onConnectWallet }) 
     bountyAmount: '',
     recipient: '',
   })
+
+  // Load demo autofill data injected by the tour
+  useEffect(() => {
+    const raw = sessionStorage.getItem('demo_autofill')
+    if (!raw) return
+    sessionStorage.removeItem('demo_autofill')
+    try {
+      const autofill = JSON.parse(raw)
+      setForm((f) => ({ ...f, ...autofill }))
+    } catch (_) {}
+  }, [])
 
   const set = (key, val) => setForm((f) => ({ ...f, [key]: val }))
 

@@ -229,13 +229,15 @@ export default function ChallengeDetail({ wallet }) {
             <div className="space-y-2">
               <Link
                 to={`/challenges/${id}/submit`}
+                data-tour="submit-btn"
                 className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-cyber-cyan/10 border border-cyber-cyan/30 text-cyber-cyan text-sm font-semibold hover:bg-cyber-cyan/20 transition-colors"
               >
                 <Send size={15} /> Submit Solution
               </Link>
-              {isOwner && submissions.length > 0 && (
+              {submissions.length > 0 && (
                 <Link
                   to={`/challenges/${id}/review`}
+                  data-tour="review-btn"
                   className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-border text-sm font-medium text-text-muted hover:text-text-primary hover:border-text-faint/40 transition-colors"
                 >
                   <Eye size={15} /> Review Submissions
@@ -247,6 +249,7 @@ export default function ChallengeDetail({ wallet }) {
           {challenge.status === 'reviewing' && isOwner && (
             <Link
               to={`/challenges/${id}/review`}
+              data-tour="review-btn"
               className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-cyber-cyan/10 border border-cyber-cyan/30 text-cyber-cyan text-sm font-semibold hover:bg-cyber-cyan/20 transition-colors"
             >
               Select Winner

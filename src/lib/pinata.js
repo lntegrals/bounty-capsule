@@ -1,10 +1,18 @@
 import PinataSDK from "@pinata/sdk";
 import { Readable } from "stream";
+import crypto from "crypto";
 
 const PINATA_JWT = process.env.PINATA_JWT;
 const PINATA_API_KEY = process.env.PINATA_API_KEY;
 const PINATA_API_SECRET = process.env.PINATA_API_SECRET;
 const GATEWAY_URL = process.env.PINATA_GATEWAY || "https://gateway.pinata.cloud/ipfs";
+
+/** Generate a deterministic mock CID from content when Pinata is not configured */
+function mockCID(data) {
+  const hash = crypto.createHash("sha256").update(JSON.stringify(data)).digest("hex");
+  // Produce a Qm-prefixed CID-looking string (not a real IPFS CID, but looks like one)
+  return `Qm${hash.slice(0, 44)}`;
+}
 
 let pinata = null;
 
@@ -45,7 +53,11 @@ export async function testPinataAuth() {
 
 export async function uploadBuffer(buffer, filename, keyvalues = {}) {
   const p = getPinata();
-  if (!p) throw new Error("Pinata not configured. Set PINATA_JWT env var.");
+  if (!p) {
+    console.warn("[Pinata] Not configured — storing without IPFS. Set PINATA_JWT to enable.");
+    const cid = mockCID({ filename, keyvalues, ts: Date.now() });
+    return { cid, size: buffer.length || 0, timestamp: new Date().toISOString(), gatewayUrl: null, local: true };
+  }
 
   const stream = Readable.from(buffer);
   stream.path = filename; // required for SDK to infer filename
@@ -64,7 +76,11 @@ export async function uploadBuffer(buffer, filename, keyvalues = {}) {
 
 export async function uploadJSON(data, keyvalues = {}) {
   const p = getPinata();
-  if (!p) throw new Error("Pinata not configured. Set PINATA_JWT env var.");
+  if (!p) {
+    console.warn("[Pinata] Not configured — storing without IPFS. Set PINATA_JWT to enable.");
+    const cid = mockCID({ data, keyvalues });
+    return { cid, size: 0, timestamp: new Date().toISOString(), gatewayUrl: null, local: true };
+  }
 
   const result = await p.pinJSONToIPFS(data, {
     pinataMetadata: { name: "bounty-capsule", keyvalues },
@@ -84,7 +100,7 @@ export async function uploadJSON(data, keyvalues = {}) {
  */
 export async function listFiles(keyvalues = {}) {
   const p = getPinata();
-  if (!p) throw new Error("Pinata not configured. Set PINATA_JWT env var.");
+  if (!p) { console.warn("[Pinata] Not configured."); return []; }
 
   // Build metadata filter — pinList accepts { metadata: { keyvalues: { key: { value, op } } } }
   const kvFilter = Object.fromEntries(
@@ -115,12 +131,12 @@ export async function getFilesBySolver(solver) {
 
 export async function pinCID(cid) {
   const p = getPinata();
-  if (!p) throw new Error("Pinata not configured.");
+  if (!p) { console.warn("[Pinata] Not configured."); return null; }
   return p.pinByHash(cid);
 }
 
 export async function unpin(cid) {
   const p = getPinata();
-  if (!p) throw new Error("Pinata not configured.");
+  if (!p) { console.warn("[Pinata] Not configured."); return null; }
   return p.unpin(cid);
 }

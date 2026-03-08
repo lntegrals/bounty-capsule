@@ -5,3 +5,6 @@ node_modules/
 *.log
 dist/
 build/
+.vercel
+bounty.db
+package-lock.json

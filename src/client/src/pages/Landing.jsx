@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowRight, Lock, Shield, Wallet, Plus, Package, Trophy } from 'lucide-react'
+import { ArrowRight, Lock, Shield, Wallet, Plus, Package, Trophy, Zap } from 'lucide-react'
 import BackgroundBeams from '../components/ui/BackgroundBeams'
 import AnimatedGrid from '../components/ui/AnimatedGrid'
 import ShinyButton from '../components/ui/ShinyButton'
@@ -37,7 +37,7 @@ const fade = (delay = 0) => ({
   transition: { duration: 0.5, delay },
 })
 
-export default function Landing({ challenges }) {
+export default function Landing({ challenges, onStartTour }) {
   const sample = challenges[0] || {
     id: 'demo-1',
     title: 'Optimize PostgreSQL queries — 5s dashboard load time',
@@ -79,6 +79,12 @@ export default function Landing({ challenges }) {
               >
                 Browse Challenges
               </Link>
+              <button
+                onClick={onStartTour}
+                className="flex items-center gap-2 px-5 py-3 rounded-lg border border-cyber-purple/30 bg-cyber-purple/5 text-cyber-purple text-sm font-semibold hover:bg-cyber-purple/10 transition-colors"
+              >
+                <Zap size={15} /> Interactive Tour
+              </button>
             </motion.div>
           </div>
 
