@@ -5,12 +5,16 @@ import { ChevronLeft, Lock, Files, Send, Clock, CheckCircle2, Eye } from 'lucide
 import StatusChip from '../components/ui/StatusChip'
 import FileRow from '../components/ui/FileRow'
 import SubmissionCard from '../components/ui/SubmissionCard'
+import OnChainProof from '../components/ui/OnChainProof'
+import CapsuleManifest from '../components/ui/CapsuleManifest'
+import { useToast } from '../components/ui/Toast'
 
 const API = '/api'
 
 export default function ChallengeDetail({ wallet }) {
   const { id } = useParams()
   const navigate = useNavigate()
+  const toast = useToast()
   const [challenge, setChallenge] = useState(null)
   const [submissions, setSubmissions] = useState([])
   const [tab, setTab] = useState('overview')
@@ -25,7 +29,7 @@ export default function ChallengeDetail({ wallet }) {
       const res = await fetch(`${API}/challenge/${id}`)
       const data = await res.json()
       setChallenge(data.challenge)
-    } catch (e) { console.error(e) }
+    } catch (e) { toast(e.message || 'Failed to load challenge', 'error') }
   }
 
   const fetchSubmissions = async () => {
@@ -33,7 +37,7 @@ export default function ChallengeDetail({ wallet }) {
       const res = await fetch(`${API}/${id}/submissions`)
       const data = await res.json()
       setSubmissions(data.submissions || [])
-    } catch (e) { console.error(e) }
+    } catch (e) { toast(e.message || 'Failed to load submissions', 'error') }
   }
 
   if (!challenge) {
@@ -47,9 +51,11 @@ export default function ChallengeDetail({ wallet }) {
   const isOwner = wallet?.address === challenge.issuer
   const files = challenge.files || []
 
+  const filesTabLabel = files.length === 0 && challenge.cid ? 'Resources' : `Files (${files.length})`
+
   const TABS = [
     { id: 'overview', label: 'Overview' },
-    { id: 'files', label: `Files (${files.length})` },
+    { id: 'files', label: filesTabLabel },
     { id: 'submissions', label: `Submissions (${submissions.length})` },
     { id: 'activity', label: 'Activity' },
   ]
@@ -84,16 +90,21 @@ export default function ChallengeDetail({ wallet }) {
             {challenge.category && <span>Category: <span className="text-text-primary">{challenge.category}</span></span>}
             {challenge.difficulty && <span>Difficulty: <span className="text-text-primary">{challenge.difficulty}</span></span>}
             {challenge.deadline && <span>Deadline: <span className="text-text-primary">{new Date(challenge.deadline).toLocaleDateString()}</span></span>}
-            <span>Created: <span className="text-text-primary">{new Date(challenge.createdAt).toLocaleDateString()}</span></span>
+            {challenge.deadline && <span>Created: <span className="text-text-primary">{new Date(challenge.createdAt).toLocaleDateString()}</span></span>}
           </div>
 
           {/* Tab bar */}
-          <div className="flex gap-1 border-b border-border mb-6 -mx-6 px-6 overflow-x-auto">
+          <div
+            role="tablist"
+            className="flex gap-1 border-b border-border mb-6 -mx-6 px-6 overflow-x-auto"
+          >
             {TABS.map((t) => (
               <button
                 key={t.id}
+                role="tab"
+                aria-selected={tab === t.id}
                 onClick={() => setTab(t.id)}
-                className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 -mb-px transition-colors ${
+                className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 -mb-px transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyber-cyan/50 rounded-t ${
                   tab === t.id
                     ? 'border-cyber-cyan text-cyber-cyan'
                     : 'border-transparent text-text-muted hover:text-text-primary'
@@ -117,12 +128,16 @@ export default function ChallengeDetail({ wallet }) {
                   <p className="text-sm text-text-muted leading-relaxed">{challenge.successCriteria}</p>
                 </div>
               )}
+              {challenge.cid && (
+                <CapsuleManifest cid={challenge.cid} fileCount={files.length} label="Challenge Capsule" />
+              )}
             </motion.div>
           )}
 
           {tab === 'files' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-2">
-              {files.length === 0 ? (
+              {challenge.cid && <CapsuleManifest cid={challenge.cid} fileCount={files.length} label="Challenge Capsule" />}
+              {files.length === 0 && !challenge.cid ? (
                 <p className="text-sm text-text-faint text-center py-8">No files attached</p>
               ) : (
                 files.map((f, i) => <FileRow key={i} file={f} />)
@@ -212,9 +227,12 @@ export default function ChallengeDetail({ wallet }) {
 
           {challenge.status === 'open' && (
             <div className="space-y-2">
-              <button className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-cyber-cyan/10 border border-cyber-cyan/30 text-cyber-cyan text-sm font-semibold hover:bg-cyber-cyan/20 transition-colors">
+              <Link
+                to={`/challenges/${id}/submit`}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-cyber-cyan/10 border border-cyber-cyan/30 text-cyber-cyan text-sm font-semibold hover:bg-cyber-cyan/20 transition-colors"
+              >
                 <Send size={15} /> Submit Solution
-              </button>
+              </Link>
               {isOwner && submissions.length > 0 && (
                 <Link
                   to={`/challenges/${id}/review`}
@@ -234,6 +252,8 @@ export default function ChallengeDetail({ wallet }) {
               Select Winner
             </Link>
           )}
+
+          <OnChainProof challenge={challenge} />
 
           <div className="pt-2 border-t border-border">
             <p className="text-[10px] text-text-faint leading-relaxed">

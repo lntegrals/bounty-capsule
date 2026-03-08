@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowRight, Lock, Shield } from 'lucide-react'
+import { ArrowRight, Lock, Shield, Wallet, Plus, Package, Trophy } from 'lucide-react'
 import BackgroundBeams from '../components/ui/BackgroundBeams'
 import AnimatedGrid from '../components/ui/AnimatedGrid'
 import ShinyButton from '../components/ui/ShinyButton'
@@ -158,6 +158,51 @@ export default function Landing({ challenges }) {
           </div>
         </div>
       </AnimatedGrid>
+
+      {/* Onboarding */}
+      <section className="px-6 py-16 border-t border-border">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="mb-10"
+          >
+            <p className="text-xs uppercase tracking-widest text-text-faint mb-3">New to BountyCapsule?</p>
+            <h2 className="text-2xl font-bold text-text-primary">Get started in four steps</h2>
+          </motion.div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { n: '01', icon: Wallet, title: 'Connect Wallet', body: 'Generate a free XRPL testnet wallet in one click. No signup required.' },
+              { n: '02', icon: Plus, title: 'Create a Challenge', body: 'Define the problem, upload materials, and set a bounty amount.' },
+              { n: '03', icon: Package, title: 'Collect Capsules', body: 'Solvers submit solution capsules pinned to IPFS with their approach.' },
+              { n: '04', icon: Trophy, title: 'Pay the Winner', body: 'Review capsules, select the best, and release the escrow in one click.' },
+            ].map((s, i) => {
+              const Icon = s.icon
+              return (
+                <motion.div
+                  key={s.n}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: i * 0.08 }}
+                  className="card p-5"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-xs font-mono font-bold text-text-faint/50">{s.n}</span>
+                    <div className="w-8 h-8 rounded-lg bg-cyber-cyan/10 border border-cyber-cyan/20 flex items-center justify-center">
+                      <Icon size={15} className="text-cyber-cyan" />
+                    </div>
+                  </div>
+                  <h3 className="text-sm font-bold text-text-primary mb-1.5">{s.title}</h3>
+                  <p className="text-xs text-text-muted leading-relaxed">{s.body}</p>
+                </motion.div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
 
       {/* Trust strip */}
       <section className="px-6 py-16 border-t border-border">

@@ -1,11 +1,9 @@
-import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Wallet, ChevronDown } from 'lucide-react'
 import WalletModal from './ui/WalletModal'
 import { ToastProvider } from './ui/Toast'
 
-export default function AppShell({ children, wallet, onCreateWallet, onLoadWallet }) {
-  const [walletModalOpen, setWalletModalOpen] = useState(false)
+export default function AppShell({ children, wallet, onCreateWallet, onLoadWallet, walletModalOpen, onOpenWalletModal, onCloseWalletModal }) {
   const location = useLocation()
 
   const isActive = (path) => location.pathname === path || (path !== '/' && location.pathname.startsWith(path))
@@ -47,7 +45,7 @@ export default function AppShell({ children, wallet, onCreateWallet, onLoadWalle
 
               {wallet ? (
                 <button
-                  onClick={() => setWalletModalOpen(true)}
+                  onClick={onOpenWalletModal}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-cyber-cyan/5 border border-cyber-cyan/20 text-cyber-cyan text-xs font-mono hover:bg-cyber-cyan/10 transition-colors"
                 >
                   <Wallet size={13} />
@@ -56,7 +54,7 @@ export default function AppShell({ children, wallet, onCreateWallet, onLoadWalle
                 </button>
               ) : (
                 <button
-                  onClick={() => setWalletModalOpen(true)}
+                  onClick={onOpenWalletModal}
                   className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyber-cyan/10 border border-cyber-cyan/30 text-cyber-cyan text-sm font-semibold hover:bg-cyber-cyan/20 transition-colors"
                 >
                   <Wallet size={14} />
@@ -73,7 +71,7 @@ export default function AppShell({ children, wallet, onCreateWallet, onLoadWalle
 
         <WalletModal
           open={walletModalOpen}
-          onClose={() => setWalletModalOpen(false)}
+          onClose={onCloseWalletModal}
           onCreateWallet={onCreateWallet}
           onLoadWallet={onLoadWallet}
         />

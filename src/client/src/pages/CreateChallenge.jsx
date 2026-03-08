@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Upload, Lock, Shield, AlertTriangle, Loader2, X } from 'lucide-react'
 import ShinyButton from '../components/ui/ShinyButton'
+import { useToast } from '../components/ui/Toast'
 
 const API = '/api'
 
@@ -16,8 +17,10 @@ const STEPS = [
 const CATEGORIES = ['Engineering', 'Design', 'Product', 'Data Science', 'Research', 'Other']
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard', 'Expert']
 
-export default function CreateChallenge({ wallet, onSuccess }) {
+export default function CreateChallenge({ wallet, onSuccess, onConnectWallet }) {
   const navigate = useNavigate()
+  const toast = useToast()
+  const isDemo = !wallet
   const [step, setStep] = useState(0)
   const [loading, setLoading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
@@ -57,10 +60,14 @@ export default function CreateChallenge({ wallet, onSuccess }) {
       })
       const data = await res.json()
       if (data.challenge) {
+        toast('Challenge published!', 'success')
         onSuccess?.()
         navigate(`/challenges/${data.challenge.id}`)
+      } else {
+        toast(data.error || 'Failed to publish challenge', 'error')
       }
     } catch (e) {
+      toast(e.message || 'Failed to publish challenge', 'error')
       console.error(e)
     }
     setLoading(false)
@@ -76,12 +83,20 @@ export default function CreateChallenge({ wallet, onSuccess }) {
   return (
     <div className="max-w-2xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-text-primary">Create Challenge</h1>
         <Link to="/challenges" className="text-sm text-text-muted hover:text-text-primary flex items-center gap-1 transition-colors">
           <X size={14} /> Cancel
         </Link>
       </div>
+
+      {/* Demo mode banner */}
+      {isDemo && (
+        <div className="flex items-center gap-2 p-3 bg-amber-400/5 border border-amber-400/20 rounded-lg mb-6">
+          <span className="text-xs font-bold text-amber-400 px-1.5 py-0.5 bg-amber-400/10 rounded">DEMO</span>
+          <p className="text-xs text-amber-400">Explore the form freely — publishing requires a connected wallet.</p>
+        </div>
+      )}
 
       {/* Step indicator */}
       <div className="flex gap-2 mb-8">
@@ -276,7 +291,6 @@ export default function CreateChallenge({ wallet, onSuccess }) {
               <p className="text-xs uppercase tracking-wider text-text-faint mb-3">Funding Status</p>
               <div className="flex items-center gap-3">
                 {['Draft', 'Awaiting', 'Locked', 'Failed'].map((label, i) => {
-                  const active = form.bountyAmount && i === 0 ? 1 : 0
                   return (
                     <div key={label} className="flex items-center gap-2">
                       <span className={`w-2 h-2 rounded-full ${i === 0 && form.bountyAmount ? 'bg-cyber-cyan animate-pulse' : 'bg-text-faint/30'}`} />
@@ -341,6 +355,18 @@ export default function CreateChallenge({ wallet, onSuccess }) {
               <p className="text-xs text-cyber-cyan font-medium">Bounty will be locked on XRPL upon publish</p>
             </div>
 
+            {!wallet && (
+              <div className="p-3 bg-amber-400/5 border border-amber-400/20 rounded-lg text-center">
+                <p className="text-xs text-amber-400 mb-2">Connect your wallet to publish.</p>
+                <button
+                  onClick={() => onConnectWallet?.()}
+                  className="text-xs text-cyber-cyan underline hover:text-cyber-cyan/80 transition-colors"
+                >
+                  Connect Wallet
+                </button>
+              </div>
+            )}
+
             <div className="flex gap-3">
               <button onClick={() => setStep(2)} className="px-4 py-2.5 rounded-lg border border-border text-sm text-text-muted hover:text-text-primary transition-colors">
                 Back
@@ -356,10 +382,6 @@ export default function CreateChallenge({ wallet, onSuccess }) {
                 }
               </ShinyButton>
             </div>
-
-            {!wallet && (
-              <p className="text-xs text-cyber-pink text-center">Connect your wallet first.</p>
-            )}
           </motion.div>
         )}
       </AnimatePresence>

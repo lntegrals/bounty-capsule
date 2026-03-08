@@ -15,7 +15,7 @@ module.exports = {
         text: {
           primary: "#F0F0F5",
           muted: "#6B7280",
-          faint: "#3A3A4A",
+          faint: "#5A5A70",
         },
       },
       fontFamily: {
