@@ -70,9 +70,11 @@ export default function Landing({ challenges, onStartTour }) {
               Upload the challenge, lock the bounty on XRPL, collect solution capsules, pay the winner.
             </motion.p>
             <motion.div {...fade(0.15)} className="flex items-center gap-3 flex-wrap">
-              <ShinyButton size="lg" onClick={() => window.location.href = '/challenges/new'}>
-                <span className="flex items-center gap-2">Create Challenge <ArrowRight size={16} /></span>
-              </ShinyButton>
+              <Link to="/challenges/new">
+                <ShinyButton size="lg">
+                  <span className="flex items-center gap-2">Create Challenge <ArrowRight size={16} /></span>
+                </ShinyButton>
+              </Link>
               <Link
                 to="/challenges"
                 className="px-6 py-3 rounded-lg border border-border text-sm font-semibold text-text-muted hover:text-text-primary hover:border-text-faint/40 transition-colors"

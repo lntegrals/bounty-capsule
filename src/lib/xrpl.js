@@ -6,7 +6,7 @@ let client = null;
 
 export async function getClient() {
   if (!client || !client.isConnected()) {
-    client = new Client(TESTNET_URL);
+    client = new Client(TESTNET_URL, { connectionTimeout: 15000 });
     await client.connect();
   }
   return client;

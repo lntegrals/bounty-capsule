@@ -18,6 +18,7 @@ export default function ReviewPage({ wallet }) {
   const [confirmModal, setConfirmModal] = useState(false)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(null)
+  const [payoutError, setPayoutError] = useState(null)
 
   useEffect(() => {
     Promise.all([
@@ -32,6 +33,7 @@ export default function ReviewPage({ wallet }) {
   const handlePayout = async () => {
     if (!selected || !wallet) return
     setLoading(true)
+    setPayoutError(null)
     try {
       const res = await fetch(`${API}/payout`, {
         method: 'POST',
@@ -43,10 +45,11 @@ export default function ReviewPage({ wallet }) {
         }),
       })
       const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Payout failed')
       setSuccess(data)
       setConfirmModal(false)
     } catch (e) {
-      console.error(e)
+      setPayoutError(e.message)
     }
     setLoading(false)
   }
@@ -197,6 +200,12 @@ export default function ReviewPage({ wallet }) {
                 <AlertTriangle size={14} className="text-amber-400 flex-shrink-0" />
                 <p className="text-xs text-amber-400">This is irreversible. Escrow will be finalized on XRPL.</p>
               </div>
+
+              {payoutError && (
+                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                  <p className="text-xs text-red-400 leading-snug">{payoutError}</p>
+                </div>
+              )}
 
               <div className="flex gap-3">
                 <button
