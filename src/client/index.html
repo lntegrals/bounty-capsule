@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BountyCapsule - Funded Challenge Market</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-tertiary: #16161f;
+      --border: #2a2a33;
+      --text-primary: #f0f0f5;
+      --text-secondary: #8e8e99;
+      --accent-teal: #10b981;
+      --accent-purple: #8b5cf6;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    
+    header { background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+    .header-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; cursor: pointer; }
+    .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple)); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .nav-links { display: flex; align-items: center; gap: 24px; }
+    .nav-link { color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .nav-link:hover { color: var(--text-primary); }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+    .btn-primary { background: var(--accent-teal); color: white; }
+    .btn-primary:hover { background: #0d9668; }
+    .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border); }
+    .btn-lg { padding: 14px 28px; font-size: 16px; }
+
+    .hero { position: relative; text-align: center; padding: 80px 0 60px; }
+    .hero::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 800px; height: 400px; background: radial-gradient(ellipse, rgba(16,185,129,0.1) 0%, transparent 70%); pointer-events: none; }
+    .hero h1 { font-size: 48px; font-weight: 800; letter-spacing: -1px; margin-bottom: 16px; }
+    .hero h1 span { background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero p { font-size: 18px; color: var(--text-secondary); max-width: 600px; margin: 0 auto 24px; }
+    .hero-buttons { display: flex; gap: 12px; justify-content: center; }
+
+    .card { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+    .section { padding: 48px 0; }
+    .section-title { font-size: 24px; font-weight: 700; margin-bottom: 24px; }
+    .grid { display: grid; gap: 24px; }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .badge { display: inline-flex; padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 600; }
+    .badge-teal { background: rgba(16,185,129,0.15); color: var(--accent-teal); }
+    .badge-yellow { background: rgba(245,158,11,0.15); color: #f59e0b; }
+    .badge-purple { background: rgba(139,92,246,0.15); color: var(--accent-purple); }
+
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; }
+    .form-input { width: 100%; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 14px; }
+    .form-input:focus { outline: none; border-color: var(--accent-teal); }
+    textarea.form-input { min-height: 120px; resize: vertical; font-family: inherit; }
+
+    .stepper { display: flex; gap: 8px; margin-bottom: 32px; }
+    .step { flex: 1; height: 4px; background: var(--border); border-radius: 2px; }
+    .step.active { background: var(--accent-teal); }
+
+    .challenge-card { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 12px; padding: 24px; cursor: pointer; transition: border-color 0.2s; }
+    .challenge-card:hover { border-color: var(--accent-purple); }
+
+    .file-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
+    .submission-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 12px; }
+    .submission-card.selected { border-color: var(--accent-teal); border-width: 2px; }
+
+    .sticky { position: sticky; top: 24px; }
+    .empty { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+    
+    .flex { display: flex; }
+    .flex-between { justify-content: space-between; }
+    .gap-sm { gap: 8px; }
+    .gap-md { gap: 16px; }
+    .gap-lg { gap: 24px; }
+    .mt-md { margin-top: 16px; }
+    .mb-md { margin-bottom: 16px; }
+    .mb-lg { margin-bottom: 24px; }
+    
+    .hidden { display: none !important; }
+
+    @media (max-width: 768px) {
+      .grid-3 { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 32px; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    const API = 'http://localhost:3002/api';
+    let state = {
+      page: 'landing',
+      wallet: null,
+      challenges: [],
+      selectedChallenge: null,
+      submissions: [],
+      createStep: 0,
+      createForm: { title: '', description: '', successCriteria: '', category: '', bountyAmount: '', recipient: '' },
+      submitForm: { solverName: '', description: '' },
+      selectedWinner: null,
+      searchQuery: '',
+      statusFilter: ''
+    };
+
+    function render() {
+      const app = document.getElementById('app');
+      
+      app.innerHTML = `
+        <header>
+          <div class="header-inner">
+            <div class="logo" onclick="goHome()">
+              <div class="logo-icon">💎</div>
+              <span>BountyCapsule</span>
+            </div>
+            <nav class="nav-links">
+              <a class="nav-link" onclick="showPage('list')">Browse</a>
+              <a class="nav-link" onclick="showPage('create')">Create</a>
+              ${state.wallet ? 
+                `<span class="badge badge-teal">${state.wallet.address.slice(0,12)}...</span>` :
+                `<button class="btn btn-primary" onclick="createWallet()">Connect Wallet</button>`
+              }
+            </nav>
+          </div>
+        </header>
+        
+        <main class="container" style="padding: 32px 24px;">
+          ${renderPage()}
+        </main>
+      `;
+    }
+
+    function renderPage() {
+      switch(state.page) {
+        case 'landing': return renderLanding();
+        case 'list': return renderList();
+        case 'create': return renderCreate();
+        case 'detail': return renderDetail();
+        case 'review': return renderReview();
+        default: return renderLanding();
+      }
+    }
+
+    function renderLanding() {
+      const sample = state.challenges[0] || { 
+        id: 'demo', title: 'Optimize database queries for faster load times', 
+        description: 'Our user dashboard takes 5+ seconds to load. We need someone to analyze and optimize the PostgreSQL queries.',
+        bountyAmount: '500', submissionCount: 3, status: 'open' 
+      };
+
+      return `
+        <section class="hero">
+          <h1>Turn any hard problem into a <span>funded market</span> for solutions</h1>
+          <p>Upload the challenge, lock the bounty, collect solution capsules, and pay the winner.</p>
+          <div class="hero-buttons">
+            <button class="btn btn-primary btn-lg" onclick="showPage('create')">Create Challenge</button>
+            <button class="btn btn-secondary btn-lg" onclick="showPage('list')">Browse Challenges</button>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="card" style="max-width: 900px; margin: 0 auto;">
+            <div class="flex flex-between mb-md">
+              <span style="font-weight: 600; font-size: 18px;">Live Example</span>
+              <span class="badge badge-teal">Demo</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+              <div>
+                <h3 style="font-size: 20px; margin-bottom: 8px;">${sample.title}</h3>
+                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">${sample.description}</p>
+                <div class="flex gap-lg">
+                  <div><span style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase;">Bounty</span><br><span style="font-weight: 700; font-size: 24px; color: var(--accent-teal);">${sample.bountyAmount} XRP</span></div>
+                  <div><span style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase;">Submissions</span><br><span style="font-weight: 600;">${sample.submissionCount}</span></div>
+                </div>
+              </div>
+              <div style="background: var(--bg-primary); border-radius: 8px; padding: 20px;">
+                <div class="flex flex-between" style="margin-bottom: 12px;"><span style="color: var(--text-secondary); font-size: 14px;">Funding</span><span style="color: var(--accent-teal); font-size: 14px;">🔒 Locked</span></div>
+                <div class="flex flex-between" style="margin-bottom: 12px;"><span style="color: var(--text-secondary); font-size: 14px;">Files</span><span style="font-size: 14px;">4 attached</span></div>
+                <div class="flex flex-between" style="margin-bottom: 16px;"><span style="color: var(--text-secondary); font-size: 14px;">Deadline</span><span style="font-size: 14px;">7 days</span></div>
+                <button class="btn btn-secondary" style="width: 100%;" onclick="viewChallenge('${sample.id}')">View Challenge</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2 class="section-title">How it works</h2>
+          <div class="grid grid-3">
+            <div class="card">
+              <div style="font-size: 32px; margin-bottom: 12px;">📤</div>
+              <h3 style="font-size: 16px; margin-bottom: 8px;">1. Define the challenge</h3>
+              <p style="color: var(--text-secondary); font-size: 14px;">Upload problem files, set success criteria, and describe what makes a winning solution.</p>
+            </div>
+            <div class="card">
+              <div style="font-size: 32px; margin-bottom: 12px;">🔒</div>
+              <h3 style="font-size: 16px; margin-bottom: 8px;">2. Lock the bounty</h3>
+              <p style="color: var(--text-secondary); font-size: 14px;">Funds are locked until a winner is selected. No upfront trust required.</p>
+            </div>
+            <div class="card">
+              <div style="font-size: 32px; margin-bottom: 12px;">🏆</div>
+              <h3 style="font-size: 16px; margin-bottom: 8px;">3. Review and pay</h3>
+              <p style="color: var(--text-secondary); font-size: 14px;">Review solution capsules, select the winner, and release the bounty in one click.</p>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderList() {
+      const filtered = state.challenges
+        .filter(c => !state.searchQuery || c.title.toLowerCase().includes(state.searchQuery.toLowerCase()))
+        .filter(c => !state.statusFilter || c.status === state.statusFilter);
+
+      return `
+        <div class="flex flex-between mb-lg">
+          <h2 class="section-title" style="margin: 0;">Challenges</h2>
+          <button class="btn btn-primary" onclick="showPage('create')">+ Create</button>
+        </div>
+
+        <div class="card mb-lg" style="padding: 16px;">
+          <div class="flex gap-md">
+            <input type="text" class="form-input" placeholder="Search challenges..." style="flex: 1;" 
+              value="${state.searchQuery}" oninput="state.searchQuery = this.value; render();">
+            <select class="form-input" style="width: 150px;" onchange="state.statusFilter = this.value; render();">
+              <option value="">All Status</option>
+             open" ${state.statusFilter === ' <option value="open' ? 'selected' : ''}>Open</option>
+              <option value="reviewing" ${state.statusFilter === 'reviewing' ? 'selected' : ''}>Reviewing</option>
+              <option value="completed" ${state.statusFilter === 'completed' ? 'selected' : ''}>Completed</option>
+            </select>
+          </div>
+        </div>
+
+        ${filtered.length === 0 ? `
+          <div class="card">
+            <div class="empty">
+              <div style="font-size: 48px;">📭</div>
+              <p>No challenges found</p>
+            </div>
+          </div>
+        ` : `
+          <div class="grid grid-3">
+            ${filtered.map(c => `
+              <div class="challenge-card" onclick="viewChallenge('${c.id}')">
+                <div class="flex flex-between mb-md">
+                  <span class="badge ${c.status === 'open' ? 'badge-teal' : c.status === 'reviewing' ? 'badge-yellow' : 'badge-purple'}">${c.status}</span>
+                  <span style="font-size: 12px; color: var(--text-secondary);">${new Date(c.createdAt).toLocaleDateString()}</span>
+                </div>
+                <h3 style="font-size: 16px; margin-bottom: 8px;">${c.title}</h3>
+                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">${c.description?.slice(0, 80)}...</p>
+                <div class="flex flex-between">
+                  <div><span style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase;">Bounty</span><br><span style="font-weight: 700; color: var(--accent-teal);">${c.bountyAmount} XRP</span></div>
+                  <div><span style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase;">Submissions</span><br><span style="font-weight: 600;">${c.submissionCount || 0}</span></div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `}
+      `;
+    }
+
+    function renderCreate() {
+      return `
+        <div class="flex flex-between mb-lg">
+          <h2 class="section-title" style="margin: 0;">Create Challenge</h2>
+          <button class="btn btn-secondary" onclick="showPage('list')">Cancel</button>
+        </div>
+
+        <div class="stepper">
+          ${[0,1,2,3].map(i => `<div class="step ${i < state.createStep ? 'active' : ''} ${i === state.createStep ? 'active' : ''}"></div>`).join('')}
+        </div>
+
+        ${state.createStep === 0 ? `
+          <div class="card">
+            <div class="form-group">
+              <label class="form-label">Challenge Title</label>
+              <input type="text" class="form-input" placeholder="e.g., Optimize database queries" value="${state.createForm.title}" oninput="state.createForm.title = this.value">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Problem Description</label>
+              <textarea class="form-input" placeholder="Describe the problem in detail..." oninput="state.createForm.description = this.value">${state.createForm.description}</textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Success Criteria</label>
+              <textarea class="form-input" placeholder="What exactly should a winning submission include?" oninput="state.createForm.successCriteria = this.value">${state.createForm.successCriteria}</textarea>
+            </div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="nextStep()" ${!state.createForm.title || !state.createForm.description ? 'disabled style="opacity:0.5"' : ''}>Continue</button>
+          </div>
+        ` : ''}
+
+        ${state.createStep === 1 ? `
+          <div class="card">
+            <div class="form-group">
+              <label class="form-label">Challenge Materials</label>
+              <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">Upload files that help solvers understand the problem.</p>
+            </div>
+            <div style="border: 2px dashed var(--border); border-radius: 12px; padding: 48px; text-align: center; cursor: pointer;">
+              <div style="font-size: 32px; margin-bottom: 12px;">📁</div>
+              <p>Drag files here or click to browse</p>
+              <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">ZIP, PDF, MD, code files supported</p>
+            </div>
+            <div style="background: var(--bg-primary); border: 1px solid var(--accent-teal); border-radius: 8px; padding: 16px; margin-top: 16px;">
+              <div class="flex gap-sm">
+                <span>🔒</span>
+                <div><p style="font-weight: 600; font-size: 14px;">Stored on IPFS via Pinata</p><p style="font-size: 12px; color: var(--text-secondary);">Content-addressed, tamper-evident</p></div>
+              </div>
+            </div>
+            <div class="flex gap-md mt-md">
+              <button class="btn btn-secondary" onclick="state.createStep--; render();">Back</button>
+              <button class="btn btn-primary" style="flex: 1;" onclick="nextStep()">Continue</button>
+            </div>
+          </div>
+        ` : ''}
+
+        ${state.createStep === 2 ? `
+          <div class="card">
+            <div class="form-group">
+              <label class="form-label">Fund the Bounty</label>
+              <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">Lock the bounty amount in escrow.</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bounty Amount (XRP)</label>
+              <input type="number" class="form-input" placeholder="100" value="${state.createForm.bountyAmount}" oninput="state.createForm.bountyAmount = this.value">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Recipient Address (optional)</label>
+              <input type="text" class="form-input" placeholder="Same as issuer" value="${state.createForm.recipient}" oninput="state.createForm.recipient = this.value">
+            </div>
+            <div style="background: var(--bg-primary); border: 1px solid var(--accent-teal); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+              <div class="flex gap-sm"><span>🔒</span><p style="font-weight: 600; font-size: 14px;">Bounty will be locked on XRPL</p></div>
+            </div>
+            ${!state.wallet ? `<p style="color: #f59e0b; font-size: 14px; margin-bottom: 16px;">Please connect your wallet to fund the bounty</p>` : ''}
+            <div class="flex gap-md">
+              <button class="btn btn-secondary" onclick="state.createStep--; render();">Back</button>
+              <button class="btn btn-primary" style="flex: 1;" onclick="nextStep()" ${!state.createForm.bountyAmount ? 'disabled style="opacity:0.5"' : ''}>Continue</button>
+            </div>
+          </div>
+        ` : ''}
+
+        ${state.createStep === 3 ? `
+          <div class="card">
+            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px;">Review & Publish</h3>
+            <div style="background: var(--bg-primary); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+              <div class="flex flex-between" style="margin-bottom: 8px;"><span style="color: var(--text-secondary); font-size: 14px;">Title</span><span style="font-weight: 600;">${state.createForm.title}</span></div>
+              <div class="flex flex-between" style="margin-bottom: 8px;"><span style="color: var(--text-secondary); font-size: 14px;">Bounty</span><span style="font-weight: 600; color: var(--accent-teal);">${state.createForm.bountyAmount} XRP</span></div>
+              <div class="flex flex-between"><span style="color: var(--text-secondary); font-size: 14px;">Funding</span><span class="badge badge-teal">Locked on XRPL</span></div>
+            </div>
+            <div class="flex gap-md">
+              <button class="btn btn-secondary" onclick="state.createStep--; render();">Back</button>
+              <button class="btn btn-primary" style="flex: 1;" onclick="submitChallenge()">Lock Bounty & Publish</button>
+            </div>
+          </div>
+        ` : ''}
+      `;
+    }
+
+    function renderDetail() {
+      if (!state.selectedChallenge) return '<p>Loading...</p>';
+      const c = state.selectedChallenge;
+      const isOwner = state.wallet?.address === c.issuer;
+
+      return `
+        <button class="btn btn-secondary mb-md" onclick="showPage('list')">← Back to challenges</button>
+        
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+          <div>
+            <div class="card">
+              <div class="flex flex-between mb-lg">
+                <h2 style="font-size: 24px; font-weight: 700;">${c.title}</h2>
+                <span class="badge ${c.status === 'open' ? 'badge-teal' : c.status === 'reviewing' ? 'badge-yellow' : 'badge-purple'}">${c.status}</span>
+              </div>
+              <div class="flex gap-lg mb-lg">
+                <div><span style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase;">Bounty</span><br><span style="font-weight: 700; font-size: 24px; color: var(--accent-teal);">${c.bountyAmount} XRP</span></div>
+                <div><span style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase;">Submissions</span><br><span style="font-weight: 600;">${state.submissions.length}</span></div>
+              </div>
+              
+              <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">Problem Description</h3>
+              <p style="color: var(--text-secondary); line-height: 1.6;">${c.description}</p>
+            </div>
+
+            <div class="card mt-md">
+              <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Submissions (${state.submissions.length})</h3>
+              ${state.submissions.length === 0 ? `
+                <div class="empty"><div style="font-size: 48px;">📬</div><p>No submissions yet</p></div>
+              ` : state.submissions.map((s,i) => `
+                <div class="submission-card">
+                  <div class="flex flex-between mb-md">
+                    <div class="flex gap-sm">
+                      <div style="width: 32px; height: 32px; background: var(--accent-teal); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600;">${(s.solverName || 'A')[0]}</div>
+                      <div><p style="font-weight: 600;">${s.solverName || 'Anonymous'}</p><p style="font-size: 12px; color: var(--text-secondary);">${new Date(s.submittedAt).toLocaleString()}</p></div>
+                    </div>
+                  </div>
+                  <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 12px;">${s.description}</p>
+                  <button class="btn btn-secondary" style="font-size: 12px; padding: 8px 12px;">View capsule</button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div>
+            <div class="card sticky">
+              <div style="margin-bottom: 20px;"><span style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase;">Bounty</span><br><span style="font-weight: 700; font-size: 32px; color: var(--accent-teal);">${c.bountyAmount} XRP</span></div>
+              <div style="background: var(--bg-primary); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                <div class="flex flex-between" style="margin-bottom: 8px;"><span style="color: var(--text-secondary); font-size: 14px;">Funding</span><span style="color: var(--accent-teal);">🔒 Locked</span></div>
+                <div class="flex flex-between" style="margin-bottom: 8px;"><span style="color: var(--text-secondary); font-size: 14px;">Submissions</span><span>${state.submissions.length}</span></div>
+              </div>
+              ${c.status === 'open' ? `
+                <button class="btn btn-primary" style="width: 100%; margin-bottom: 12px;" onclick="showSubmitModal()">Submit Solution</button>
+                ${isOwner && state.submissions.length > 0 ? `<button class="btn btn-secondary" style="width: 100%;" onclick="showPage('review')">Review Submissions</button>` : ''}
+              ` : ''}
+              ${c.status === 'reviewing' && isOwner ? `<button class="btn btn-primary" style="width: 100%;" onclick="showPage('review')">Select Winner</button>` : ''}
+              <p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 16px;">🔒 Locked on XRPL · 📦 Stored on IPFS</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderReview() {
+      if (!state.selectedChallenge) return '<p>Loading...</p>';
+      const c = state.selectedChallenge;
+
+      return `
+        <button class="btn btn-secondary mb-md" onclick="showPage('detail')">← Back to challenge</button>
+        <h2 class="section-title">Review Submissions</h2>
+        
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+          <div>
+            ${state.submissions.length === 0 ? `
+              <div class="card"><div class="empty"><p>No submissions to review</p></div></div>
+            ` : state.submissions.map((s,i) => `
+              <div class="submission-card ${state.selectedWinner?.id === s.id ? 'selected' : ''}" onclick="state.selectedWinner = s; render();">
+                <div class="flex flex-between mb-md">
+                  <div class="flex gap-sm">
+                    <div style="width: 40px; height: 40px; background: var(--accent-teal); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600;">${(s.solverName || 'A')[0]}</div>
+                    <div><p style="font-weight: 600;">${s.solverName || 'Anonymous'}</p><p style="font-size: 12px; color: var(--text-secondary);">${new Date(s.submittedAt).toLocaleString()}</p></div>
+                  </div>
+                  ${state.selectedWinner?.id === s.id ? `<span class="badge badge-teal">Selected</span>` : ''}
+                </div>
+                <p style="margin-bottom: 12px;">${s.description}</p>
+              </div>
+            `).join('')}
+          </div>
+          
+          <div>
+            <div class="card sticky">
+              <div style="margin-bottom: 20px;"><span style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase;">Reviewing for</span><br><span style="font-weight: 700; font-size: 24px;">${c.bountyAmount} XRP</span></div>
+              <div style="background: var(--bg-primary); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                <div class="flex flex-between" style="margin-bottom: 8px;"><span style="color: var(--text-secondary); font-size: 14px;">Submissions</span><span>${state.submissions.length}</span></div>
+                <div class="flex flex-between"><span style="color: var(--text-secondary); font-size: 14px;">Selected</span><span>${state.selectedWinner ? 1 : 0}</span></div>
+              </div>
+              <button class="btn btn-primary" style="width: 100%;" ${!state.selectedWinner ? 'disabled style="opacity:0.5"' : ''} onclick="confirmPayout()">Release Bounty</button>
+              <p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 12px;">This action is irreversible</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function showPage(page) {
+      state.page = page;
+      render();
+      if (page === 'list') await fetchChallenges();
+      if (page === 'detail' && state.selectedChallenge) await fetchSubmissions(state.selectedChallenge.id);
+    }
+
+    function goHome() { showPage('landing'); }
+
+    async function createWallet() {
+      const res = await fetch(`${API}/wallet/create`, { method: 'POST' });
+      state.wallet = await res.json();
+      localStorage.setItem('bounty_seed', state.wallet.seed);
+      render();
+    }
+
+    async function fetchChallenges() {
+      const res = await fetch(`${API}/challenges`);
+      const data = await res.json();
+      state.challenges = data.challenges || [];
+      render();
+    }
+
+    async function fetchSubmissions(challengeId) {
+      const res = await fetch(`${API}/${challengeId}/submissions`);
+      const data = await res.json();
+      state.submissions = data.submissions || [];
+      render();
+    }
+
+    async function viewChallenge(id) {
+      state.selectedChallenge = state.challenges.find(c => c.id === id);
+      await fetchSubmissions(id);
+      showPage('detail');
+    }
+
+    function nextStep() {
+      state.createStep++;
+      render();
+    }
+
+    async function submitChallenge() {
+      if (!state.wallet) { alert('Please connect your wallet'); return; }
+      const res = await fetch(`${API}/challenge/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...state.createForm, issuerSeed: state.wallet.seed, recipient: state.createForm.recipient || state.wallet.address })
+      });
+      const data = await res.json();
+      if (data.challenge) {
+        await fetchChallenges();
+        viewChallenge(data.challenge.id);
+      }
+    }
+
+    function showSubmitModal() {
+      const name = prompt('Your name:');
+      const desc = prompt('Solution description:');
+      if (name && desc) {
+        submitSolution(name, desc);
+      }
+    }
+
+    async function submitSolution(name, desc) {
+      await fetch(`${API}/submission/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ challengeId: state.selectedChallenge.id, solverName: name, description: desc, solverSeed: state.wallet?.seed })
+      });
+      await fetchSubmissions(state.selectedChallenge.id);
+      alert('Solution submitted!');
+    }
+
+    async function confirmPayout() {
+      if (!confirm('Release bounty to winner? This cannot be undone.')) return;
+      await fetch(`${API}/payout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ challengeId: state.selectedChallenge.id, winnerAddress: state.selectedWinner.solver, issuerSeed: state.wallet.seed })
+      });
+      showPage('list');
+      alert('Bounty released!');
+    }
+
+    async function init() {
+      const savedSeed = localStorage.getItem('bounty_seed');
+      if (savedSeed) {
+        const res = await fetch(`${API}/wallet/from-seed`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ seed: savedSeed })
+        });
+        state.wallet = { ...await res.json(), seed: savedSeed };
+      }
+      await fetchChallenges();
+      render();
+    }
+
+    init();
+  </script>
+</body>
+</html>
