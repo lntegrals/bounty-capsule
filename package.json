@@ -4,13 +4,15 @@
   "description": "On-chain bounty market using XRPL Escrow and Pinata IPFS",
   "type": "module",
   "scripts": {
-    "devcurrently \"npm run": "con server\" \"npm run client\"",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "node src/server/index.js",
     "client": "cd src/client && npm run dev",
-    "build": "cd src/client && npm run build"
+    "build": "cd src/client && npm run build",
+    "seed": "node src/scripts/seed.js"
   },
   "dependencies": {
     "@pinata/sdk": "^2.1.0",
+    "better-sqlite3": "^12.6.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
