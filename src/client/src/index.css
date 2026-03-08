@@ -74,4 +74,19 @@
   .purple-glow {
     box-shadow: 0 0 20px rgba(112, 0, 255, 0.2), 0 0 40px rgba(112, 0, 255, 0.1);
   }
+
+  /* Demo tour highlight ring — added/removed via JS */
+  .tour-ring {
+    outline: 2px solid rgba(0, 240, 255, 0.85) !important;
+    outline-offset: 4px;
+    border-radius: 8px;
+    animation: tour-pulse 1.6s ease-in-out infinite;
+    position: relative;
+    z-index: 50;
+  }
+
+  @keyframes tour-pulse {
+    0%, 100% { outline-color: rgba(0, 240, 255, 0.85); }
+    50%       { outline-color: rgba(0, 240, 255, 0.25); }
+  }
 }

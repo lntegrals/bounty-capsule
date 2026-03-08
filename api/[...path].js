@@ -158,7 +158,11 @@ export default async function handler(req, res) {
         deadline: deadline || '',
       };
 
-      const ipfsResult = await uploadJSON(challengeData, { type: 'challenge' });
+      // Upload to IPFS (non-fatal if Pinata not configured)
+      let ipfsResult = { cid: null, gatewayUrl: null };
+      try {
+        ipfsResult = await uploadJSON(challengeData, { type: 'challenge' });
+      } catch (e) { console.warn('[API] IPFS upload skipped:', e.message); }
       challengeData.cid = ipfsResult.cid;
 
       // createEscrow converts XRP → drops internally
@@ -177,7 +181,11 @@ export default async function handler(req, res) {
     }
 
     if (method === 'GET' && path === '/api/challenges') {
-      send({ challenges: Array.from(CHALLENGES.values()) });
+      const challenges = Array.from(CHALLENGES.values()).map((c) => ({
+        ...c,
+        submissionCount: Array.from(SUBMISSIONS.values()).filter((s) => s.challengeId === c.id).length,
+      }));
+      send({ challenges });
       return;
     }
 
@@ -210,9 +218,12 @@ export default async function handler(req, res) {
         status: 'submitted',
       };
 
-      const ipfsResult = await uploadJSON(submissionData, {
-        type: 'submission', challengeId, solver: submissionData.solver,
-      });
+      let ipfsResult = { cid: null, gatewayUrl: null };
+      try {
+        ipfsResult = await uploadJSON(submissionData, {
+          type: 'submission', challengeId, solver: submissionData.solver,
+        });
+      } catch (e) { console.warn('[API] IPFS upload skipped:', e.message); }
       submissionData.cid = ipfsResult.cid;
       submissionData.id = `submission_${Date.now()}`;
       SUBMISSIONS.set(submissionData.id, submissionData);
